@@ -54,7 +54,7 @@ pipeline {
 
         stage("Install NPM Dependencies") {
             steps {
-                sh "rm -rf node_modules package-lock.json || true"
+                sh "rm -rf node_modules"
                 sh "npm ci"
             }
         }
