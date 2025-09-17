@@ -1,12 +1,12 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper";
+import { Navigation, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
 const Carousel = () => {
   return (
-    <div className="h-[600px] bg-white">
+    <div className="h-[300px] md:h-[600px] bg-white">
       <Swiper
         loop={true}
         spaceBetween={0}
@@ -15,27 +15,27 @@ const Carousel = () => {
         autoplay={{
           delay: 4500,
         }}
-        className="h-[50%]"
+        className="h-full"
       >
         <SwiperSlide>
-          <img src={"../images/carousel_1.jpg"} alt="Carousel POR" />
+          <img src={"../images/carousel_1.jpg"} alt="Carousel POR" className="w-full h-full object-cover" />
         </SwiperSlide>
         <SwiperSlide>
-          <img src={"../images/carousel_2.jpg"} alt="Carousel POR" />
+          <img src={"../images/carousel_2.jpg"} alt="Carousel POR" className="w-full h-full object-cover" />
         </SwiperSlide>
         <SwiperSlide className="bg-black">
-          <video controls muted="muted">
+          <video controls muted="muted" className="w-full h-full object-cover">
             <source src={"../images/carousel_vid.mp4"} type="video/mp4" />
           </video>
         </SwiperSlide>
         <SwiperSlide>
-          <img src={"../images/carousel_4.jpg"} alt="Carousel POR" />
+          <img src={"../images/carousel_4.jpg"} alt="Carousel POR" className="w-full h-full object-cover" />
         </SwiperSlide>
         <SwiperSlide>
-          <img src={"../images/carousel_5.jpg"} alt="Carousel POR" />
+          <img src={"../images/carousel_5.jpg"} alt="Carousel POR" className="w-full h-full object-cover" />
         </SwiperSlide>
       </Swiper>
-      <div className="h-[50%] bg-gradient-to-b from-stone-900" />
+      <div className="h-[50%] bg-gradient-to-b from-stone-900 hidden md:block" />
     </div>
   );
 };

@@ -31,15 +31,15 @@ const ProductPage = () => {
 
   return (
     product && (
-      <div className="h-screen bg-amazonclone-background">
-        <div className="min-w-[1000px] max-w-[1500px] m-auto p-4">
-          <div className="grid grid-cols-10 gap-2">
+      <div className="min-h-screen bg-amazonclone-background">
+        <div className="w-full max-w-[1500px] m-auto p-4">
+          <div className="grid grid-cols-1 md:grid-cols-10 gap-4">
             {/* Left */}
-            <div className="col-span-3 p-8 rounded bg-white m-auto">
-              <img src={`${product.image}`} alt="Main product" />
+            <div className="md:col-span-3 p-8 rounded bg-white">
+              <img src={`${product.image}`} alt="Main product" className="w-full" />
             </div>
             {/* Middle */}
-            <div className="col-span-5 p-4 rounded bg-white divide-y divide-gray-400">
+            <div className="md:col-span-5 p-4 rounded bg-white divide-y divide-gray-400">
               <div className="mb-3">
                 <ProductDetails product={product} ratings={true} />
               </div>
@@ -48,7 +48,7 @@ const ProductPage = () => {
               </div>
             </div>
             {/* Right */}
-            <div className="col-span-2 p-4 rounded bg-white">
+            <div className="md:col-span-2 p-4 rounded bg-white">
               <div className="text-xl xl:text-2xl text-red-700 text-right font-semibold">
                 {GB_CURRENCY.format(product.price)}
               </div>
@@ -71,17 +71,23 @@ const ProductPage = () => {
                 Quantity:
                 <select
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="p-2 bg-white border rounded-md focus:border-indigo-600"
+                  className="p-2 bg-white border rounded-md focus:border-indigo-600 w-full"
                 >
                   <option>1</option>
                   <option>2</option>
                   <option>3</option>
                 </select>
               </div>
+              <button
+                onClick={() => alert("Added to Wishlist!")}
+                className="w-full p-3 text-xs xl:text-sm bg-gray-200 hover:bg-gray-300 rounded mt-3"
+              >
+                Add to Wishlist
+              </button>
               <Link to={"/checkout"}>
                 <button
                   onClick={() => dispatch(addToCart(addQuantityToProduct()))}
-                  className="btn"
+                  className="btn w-full"
                 >
                   Add to Cart
                 </button>

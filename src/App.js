@@ -5,6 +5,7 @@ import {
   Checkout,
   SearchResults,
   ProductPage,
+  Footer,
 } from "./components";
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 };

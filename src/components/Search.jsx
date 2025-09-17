@@ -60,8 +60,8 @@ const Search = () => {
           <MagnifyingGlassIcon className="h-[27px] m-auto stroke-slate-900" />
         </button>
       </div>
-      {suggestions && (
-        <div className="bg-white text-black w-full z-40 absolute">
+      {suggestions && searchTerm && (
+        <div className="bg-white text-black w-full z-40 absolute border border-gray-300 rounded-b-md shadow-lg max-h-60 overflow-y-auto">
           {suggestions
             .filter((suggestion) => {
               const currentSearchTerm = searchTerm.toLowerCase();
@@ -77,6 +77,7 @@ const Search = () => {
               <div
                 key={suggestion.id}
                 onClick={() => setSearchTerm(suggestion.title)}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
               >
                 {suggestion.title}
               </div>
