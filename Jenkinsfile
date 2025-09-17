@@ -7,7 +7,7 @@ pipeline {
 
     tools {
         jdk 'jdk17'
-        nodejs 'nodejs16'
+        nodejs 'nodejs18'
     }
 
     environment {
