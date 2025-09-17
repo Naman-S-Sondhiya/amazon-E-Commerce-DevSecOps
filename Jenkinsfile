@@ -65,13 +65,6 @@ pipeline {
             }
         }
         
-        stage("Build React App") {
-            steps {
-                sh "npm run build"
-                archiveArtifacts artifacts: 'build/**/*', allowEmptyArchive: true
-            }
-        }
-        
         stage("Security Scans") {
             parallel {
                 stage("OWASP FS Scan") {
