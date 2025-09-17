@@ -1,51 +1,48 @@
-# Project Structure
+# Amazon Clone Project Structure
 
-This is a Next.js application using the App Router.
+This is a React application built with Create React App, using React Router for navigation.
 
 ## Directory Structure
 
-- `src/app/`: Contains the routes for the application.
-  - Each folder represents a route, e.g., `index2/` for `/index2`.
-  - `page.js`: The main page component for the route.
-  - `layout.js`: Optional layout for the route.
+- `src/`: Main source directory.
+  - `components/`: Reusable React components.
+    - `HomePage.jsx`: Main homepage component.
+    - `NavBar.jsx`: Navigation bar with search and cart.
+    - `Carousel.jsx`: Image/video carousel for homepage.
+    - `CarouselCategory.jsx`: Category carousel.
+    - `CarouselProduct.jsx`: Product carousel.
+    - `Checkout.jsx`: Checkout page component.
+    - `HomePageCard.jsx`: Card component for homepage grid.
+    - `ProductBadge.jsx`: Product badge component.
+    - `ProductDetails.jsx`: Product details component.
+    - `ProductPage.jsx`: Individual product page.
+    - `ProductRatings.jsx`: Product ratings component.
+    - `Search.jsx`: Search bar with suggestions.
+    - `SearchResults.jsx`: Search results page.
+    - `Footer.jsx`: Footer component with links.
+    - `index.js`: Exports all components.
+  - `redux/`: Redux store and slices.
+  - `utils/`: Utility functions and constants.
+  - `App.js`: Main app component with routing.
+  - `index.js`: Entry point.
 
-- `src/components/`: Contains reusable React components.
-  - `HomePage.jsx`: Main homepage component.
-  - `NavBar.jsx`: Navigation bar.
-  - `Carousel.jsx`: Product carousel.
-  - `CarouselCategory.jsx`: Category carousel.
-  - `CarouselProduct.jsx`: Product carousel.
-  - `Checkout.jsx`: Checkout component.
-  - `HomePageCard.jsx`: Card for homepage.
-  - `ProductBadge.jsx`: Product badge.
-  - `ProductDetails.jsx`: Product details.
-  - `ProductPage.jsx`: Product page.
-  - `ProductRatings.jsx`: Product ratings.
-  - `Search.jsx`: Search component.
-  - `SearchResults.jsx`: Search results.
-  - `index.js`: Exports all components for easy importing.
+- `public/`: Static assets like images.
 
-- `public/`: Static assets.
+- `package.json`: Project dependencies and scripts.
 
-- `package.json`: Dependencies and scripts.
+## Routes
 
-## /index2 Route
+- `/`: HomePage - Main homepage with carousels and product grid.
+- `/search`: SearchResults - Displays search results.
+- `/product/:id`: ProductPage - Individual product details.
+- `/checkout`: Checkout - Cart checkout page.
 
-The `/index2` route is defined in `src/app/index2/page.js`.
+## Key Features
 
-It renders the `HomePage` component, which includes various sub-components like `NavBar`, `Carousel`, etc.
+- Responsive design using Tailwind CSS.
+- Redux for state management (cart).
+- Swiper for carousels.
+- Heroicons for icons.
+- Axios for API calls (mock data).
 
-The layout is in `src/app/index2/layout.js`, which sets the title to "Amazon Clone".
-
-This route is for the homepage of the Amazon clone.
-
-## Components
-
-Components are exported from `src/components/index.js` for easy importing.
-
-For example:
-```javascript
-import { HomePage } from '../components';
-```
-
-This structure allows for modular development and easy maintenance.
+This structure promotes modularity and easy maintenance.
