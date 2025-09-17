@@ -1,13 +1,17 @@
 pipeline {
     agent any
+    parameters {
+        booleanParam(name: 'LOCAL_DEPLOYMENT', defaultValue: false, description: 'Deploys Docker Image Locally')
+        booleanParam(name: 'PUSH_TO_DOCKER', defaultValue: false, description: 'Push Docker Image to DockerHUB')
+    }
 
     tools {
         jdk 'jdk17'
-        nodejs 'node16'
+        nodejs 'nodejs16'
     }
 
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_EV = tool 'Sonar'
     }
 
     stages {
@@ -19,16 +23,20 @@ pipeline {
 
         stage("Git Checkout") {
             steps {
-                git branch: 'main', url: 'https://github.com/harishnshetty/amazon-Devsecops.git'
+                git branch: 'tram', url: 'https://github.com/Naman-S-Sondhiya/amazon-E-Commerce-DevSecOps.git'
+            }
+        }
+        
+        stage("GitLeaks Scan") {
+            steps {
+                sh 'gitleaks detect --source . -r gitleaks-report.json -f json'
             }
         }
 
         stage("SonarQube Analysis") {
             steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=amazon \
-                        -Dsonar.projectKey=amazon '''
+                withSonarQubeEnv('Sonar') {
+                    sh ''' $SCANNER_EV/bin/sonar-scanner -Dsonar.projectName=amazon -Dsonar.projectKey=amazon '''
                 }
             }
         }
@@ -36,12 +44,11 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    timeout(time: 3, unit: 'MINUTES') {
-                  
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                    timeout(time: 4, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                    }
                 }
             }
-        }
         }
 
         stage("Install NPM Dependencies") {
@@ -50,21 +57,12 @@ pipeline {
             }
         }
         
-       
         stage("OWASP FS Scan") {
             steps {
-                dependencyCheck additionalArguments: '''
-                    --scan ./ 
-                    --disableYarnAudit 
-                    --disableNodeAudit 
-                
-                   ''',
-                odcInstallation: 'dp-check'
-
+                dependencyCheck additionalArguments: '''--scan ./ --disableYarnAudit --disableNodeAudit''', odcInstallation: 'owasp'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
-
 
         stage("Trivy File Scan") {
             steps {
@@ -75,88 +73,73 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 script {
-                    env.IMAGE_TAG = "harishnshetty/amazon:${BUILD_NUMBER}"
-
-                    // Optional cleanup
+                    env.IMAGE_TAG = "namanss/amazon:${BUILD_NUMBER}"
                     sh "docker rmi -f amazon ${env.IMAGE_TAG} || true"
-
-                    sh "docker build -t amazon ."
+                    sh "docker build -t amazon -t ${env.IMAGE_TAG} ."
                 }
             }
         }
-
-        stage("Tag & Push to DockerHub") {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'docker-cred', variable: 'dockerpwd')]) {
-                        sh "docker login -u harishnshetty -p ${dockerpwd}"
-                        sh "docker tag amazon ${env.IMAGE_TAG}"
-                        sh "docker push ${env.IMAGE_TAG}"
-
-                        // Also push latest
-                        sh "docker tag amazon harishnshetty/amazon:latest"
-                        sh "docker push harishnshetty/amazon:latest"
-                    }
-                }
-            }
-        }
-
-       
 
         stage("Trivy Scan Image") {
             steps {
                 script {
                     sh """
-                    echo '🔍 Running Trivy scan on ${env.IMAGE_TAG}'
+                    echo '🔍 Running Trivy scan on amazon image'
 
                     # JSON report
-                    trivy image -f json -o trivy-image.json ${env.IMAGE_TAG}
+                    trivy image -f json -o trivy-image.json amazon
 
-                    # HTML report using built-in HTML format
-                    trivy image -f table -o trivy-image.txt ${env.IMAGE_TAG}
+                    # Table report
+                    trivy image -f table -o trivy-image.txt amazon
 
-                    # Fail build if HIGH/CRITICAL vulnerabilities found
-                    # trivy image --exit-code 1 --severity HIGH,CRITICAL ${env.IMAGE_TAG} || true
+                    # Fail build if HIGH/CRITICAL vulnerabilities found (uncomment if needed)
+                    # trivy image --exit-code 1 --severity HIGH,CRITICAL amazon
                 """
                 }
             }
         }
 
-
-        stage("Deploy to Container") {
+        stage('Deploy To Container') {
+            when {
+                expression { params.LOCAL_DEPLOYMENT }
+            }
             steps {
                 script {
-                    sh "docker rm -f amazon || true"
-                    sh "docker run -d --name amazon -p 80:80 ${env.IMAGE_TAG}"
+                    sh "docker stop amazon || true"
+                    sh "docker rm amazon || true"
+                    sh "docker run -d --name amazon -p 80:80 amazon"
+                }
+            }
+        }
+
+        stage("Tag & Push to DockerHub") {
+            when {
+                expression { params.PUSH_TO_DOCKER }
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                        sh "docker tag amazon namanss/amazon:${BUILD_NUMBER}"
+                        sh "docker tag amazon namanss/amazon:latest"
+                        sh "echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin"
+                        sh "docker push namanss/amazon:${BUILD_NUMBER}"
+                        sh "docker push namanss/amazon:latest"
+                    }
                 }
             }
         }
     }
 
-      post {
-    always {
-        script {
-            def buildStatus = currentBuild.currentResult
-            def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: ' Github User'
-
+    post {
+        always {
             emailext (
-                subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    <p>This is a Jenkins Amazon CICD pipeline status.</p>
-                    <p>Project: ${env.JOB_NAME}</p>
-                    <p>Build Number: ${env.BUILD_NUMBER}</p>
-                    <p>Build Status: ${buildStatus}</p>
-                    <p>Started by: ${buildUser}</p>
-                    <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                to: 'harishn662@gmail.com',
-                from: 'harishn662@gmail.com',
-                mimeType: 'text/html',
+                subject: "${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build ${currentBuild.currentResult}\nProject: ${env.JOB_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}",
+                to: 'ssnaman4@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivy-image.json,trivy-image.txt,dependency-check-report.xml'
-                    )
+            )
         }
     }
-}
 }
 
 

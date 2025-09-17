@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: amazon-app-svc
+  namespace: amazon
+spec:
+  selector:
+    app.kubernetes.io/name: amazon-app
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080
+    protocol: TCP
+  type: NodePort
