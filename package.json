@@ -21,13 +21,20 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "audit:security": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix",
+    "build:ci": "CI=true npm run build"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "browserslist": {
     "production": [
@@ -44,5 +51,9 @@
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "tailwindcss": "^3.4.15"
+  },
+  "overrides": {
+    "nth-check": ">=2.0.1",
+    "postcss": ">=8.4.31"
   }
 }
